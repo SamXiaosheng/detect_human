@@ -19,25 +19,23 @@ class Hog:
         print img.shape
         for i in range(0, cols-1):
             for j in range(0, rows-1):
-                print i, j
                 # get the angles
                 angle_weights = self.__ahist[i][j][:]
-
                 # normalize to 255
-                angle_weights = angle_weights / np.amax(angle_weights) * 255
-                print angle_weights
+                angle_weights = angle_weights / np.amax(self.__ahist) * 255
+                # print angle_weights
 
                 # draw the line
                 angle = 0
                 x = (1, 4)
-                y = (3, 4)
+                y = (7, 4)
                 cell = np.zeros((8, 8))
                 for angle_weight in angle_weights:
                     myline = np.zeros((8, 8))
                     cv2.line(myline, x, y, (angle_weight, 0, 0), 1)
                     M = cv2.getRotationMatrix2D((4, 4), angle, 1)
                     myline = cv2.warpAffine(myline, M, (8, 8))
-                    cell = myline + cell
+                    cell[cell < myline] = myline[cell < myline]
                     # img[j*8:(j+1)*8, i*8:(i+1)*8] =\
                     #    cv2.addWeighted(img[j*8:(j+1)*8, i*8:(i+1)*8], 0.5,
                     #                    cell, 0.5, 0.0)
@@ -59,7 +57,7 @@ class Hog:
         # print 'ang shape:', ang.shape
 
         # quantize from 0...16
-        bins = np.int32(self.__bin_n * ang / (2*np.pi))
+        bins = np.int32(self.__bin_n * ang / (np.pi))
         # print 'bin shape', bins.shape
 
         # separate image into cells

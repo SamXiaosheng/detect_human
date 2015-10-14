@@ -49,6 +49,11 @@ class HumanDetector:
             img = cv2.imread(neg, cv2.IMREAD_GRAYSCALE)
             img = np.float32(img)
             features = self.hog.descript(img)
+            plt.figure()
+            plt.imshow(img)
+            plt.figure()
+            plt.imshow(self.hog.hog_show())
+            plt.show()
             self.feature_vec.append(features)
             self.target_vec.append(0)
 
