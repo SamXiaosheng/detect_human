@@ -1,6 +1,5 @@
 import cv2
 import numpy as np
-import matplotlib.pyplot as plt
 from sklearn import svm
 import hog
 
@@ -27,19 +26,18 @@ class HumanDetector:
     def __init__(self):
         pass
 
-    def build_features(self, pos_list, neg_list):
+    def build_features(self, pos_list, neg_list, show=False):
         for pos in pos_list:
             # Detect features with HoG
             print 'pos', pos
             img = cv2.imread(pos, cv2.IMREAD_GRAYSCALE)
             img = np.float32(img)
             features = self.hog.descript(img)
-            plt.figure()
-            plt.imshow(img)
-            plt.figure()
-            plt.imshow(self.hog.hog_show())
-            plt.show()
-            print features
+            if(show):
+                cv2.imshow('Image', np.uint8(img))
+                cv2.imshow('Hog Visual', np.uint8(self.hog.hog_show()))
+                cv2.waitKey(0)
+            # print features
             self.feature_vec.append(features)
             self.target_vec.append(1)
 
@@ -49,11 +47,10 @@ class HumanDetector:
             img = cv2.imread(neg, cv2.IMREAD_GRAYSCALE)
             img = np.float32(img)
             features = self.hog.descript(img)
-            plt.figure()
-            plt.imshow(img)
-            plt.figure()
-            plt.imshow(self.hog.hog_show())
-            plt.show()
+            if(show):
+                cv2.imshow('Image', np.uint8(img))
+                cv2.imshow('Hog Visual', np.uint8(self.hog.hog_show()))
+                cv2.waitKey(0)
             self.feature_vec.append(features)
             self.target_vec.append(0)
 
@@ -105,13 +102,13 @@ with open(TRAIN_LIST_PATH + NEG_FILENAME, 'r') as f:
 
 # Training
 # test one image for now
-human_detector.build_features(pos_list[:1], neg_list[:1])
-# human_detector.train()
+human_detector.build_features(pos_list[:100], neg_list[:100])
+human_detector.train()
 
 # Test an image
-# test_img = '../datasets/INRIAPerson/96X160H96/Train/pos/crop_000010a.png'
-# img = cv2.imread(test_img, cv2.IMREAD_GRAYSCALE)
-# print 'is it a human?', human_detector.test(img)[0]
+test_img = '../datasets/INRIAPerson/96X160H96/Train/pos/crop_000010a.png'
+img = cv2.imread(test_img, cv2.IMREAD_GRAYSCALE)
+print 'is it a human?', human_detector.test(img)[0]
 
 # search image for human using sliding window approach
 # Then use non-maximal suppression to get one highest scoring detection
