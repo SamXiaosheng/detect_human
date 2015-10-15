@@ -13,7 +13,7 @@ class Hog:
     __ahist = 0
 
     def hog_show(self):
-        # only works for 96x1609
+        # only works for 96x160
         cols, rows, bins = self.__ahist.shape
         print rows, cols
         img = np.zeros((rows*8, cols*8))
@@ -45,6 +45,7 @@ class Hog:
         return img
 
     def descript(self, img):
+        # Resize the image
         rows, cols = img.shape
         numcells_h = 12
         numcells_v = 20
@@ -59,12 +60,13 @@ class Hog:
         gy = cv2.filter2D(img, -1, np.mat('-1; 0.; 1.'))
         mag, ang = cv2.cartToPolar(gx, gy)  # angles 0 - 2pi
         ang[ang >= np.pi] = ang[ang >= np.pi] - np.pi
-
-        # quantize from 0...16
+        # print 'ang', ang
+        # quantize 0 ...pi from 0...16
         bins = np.int32(self.__bin_n * ang / (np.pi))
+        mag = np.int32(mag)
         # print 'bin shape', bins.shape
 
-        # separate image into cells
+        # separate image into cells. Cell size varies per img
         cells = np.array(np.hsplit(bins, numcells_h))
         mcells = np.array(np.hsplit(mag, numcells_h))
         bin_cells = np.empty((numcells_h, numcells_v,
@@ -83,15 +85,17 @@ class Hog:
         for i in range(0, numcells_h-1):
             for j in range(0, numcells_v-1):
                 # print i
-                # 50% Overlap
+                # 50% Overlap blocks
+                # print 'bincells', bin_cells[i:2+i, j:2+j]
                 hists = np.bincount(
                     np.int32(bin_cells[i:2+i, j:2+j].ravel()),
                     weights=np.int32(mag_cells[i:2+i, j:2+j].ravel()),
                     minlength=self.__bin_n+1)
+
                 # print 'hists', hists
-                if np.amax(hists) != 0.0:
-                    hists = hists / np.amax(hists) * 255
-                    print 'hists', hists
+                # if np.amax(hists) != 0.0:
+                    # hists = hists / np.amax(hists) * 255
+                    # print 'hists', hists
                 self.__ahist[i][j][:] = hists
                 # make the 1D vector.
                 hist.append(hists)
