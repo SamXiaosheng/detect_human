@@ -16,11 +16,11 @@ NEG_FILENAME = 'neg.lst'
 class HumanDetector:
 
     # Classifier
-    clf = svm.SVC()
-
+    clf = svm.LinearSVC()  # one versus rest train only one class
+    #clf = svm.SVC(kernel='linear')
     # Descriptor
     hog = hog.Hog()
-    #hog = cv2.HOGDescriptor()
+    # hog = cv2.HOGDescriptor()
 
     # Feature list
     feature_vec = []
@@ -60,16 +60,9 @@ class HumanDetector:
     # Use the feature vectors to train the SVM
     def train(self, X=feature_vec, y=target_vec):
         # convert the lists to array for training
-        arr = np.empty((len(X), X[0].shape[0]))
-        for x in range(len(X)-1):
-            print X[x].shape
-            arr[x] = X[x].ravel()
-
+        X = np.asarray(X)
         y = np.asarray(y)
-        print arr.shape
-        print y.shape
-
-        self.clf.fit(arr, y)
+        self.clf.fit(X, y)
 
     def test(self, img):
         features = np.asarray(self.hog.compute(img))
@@ -84,6 +77,7 @@ if(str(sys.argv[1]) == '-l'):
     loading = True
 
 # TRAINING
+print 'Training...'
 human_detector = HumanDetector()
 
 if loading:
@@ -127,6 +121,7 @@ else:
 
 # TESTING
 # Test the classifier
+print '\nTesting...'
 pos_test_list = []
 with open(TEST_LIST_PATH + POS_FILENAME, 'r') as f:
         while True:
@@ -151,6 +146,9 @@ with open(TEST_LIST_PATH + NEG_FILENAME, 'r') as f:
             filename = line.rpartition('/')[2].rstrip()
             neg_test_list.append(TEST_IMAGE_PATH + '/neg/' + filename)
 
+print 'neg', len(neg_test_list)
+print 'pos', len(pos_test_list)
+
 TP = 0.0
 FN = 0.0
 FP = 0.0
@@ -172,9 +170,8 @@ for neg in neg_test_list[:10]:
     else:
         TN = TN + 1.
 
-print 'neg', len(neg_test_list)
-print 'pos', len(pos_test_list)
-print '          pos   |  neg'
+print '\nClassifier Results...'
+print '          pos    |  neg'
 print '------------------------'
 print 'pos |    {}     |  {}   '.format(TP, FN)
 print '------------------------'

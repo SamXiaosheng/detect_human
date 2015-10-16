@@ -3,7 +3,7 @@ import cv2
 
 
 class Hog:
-    # Works for 96X160 images
+    # Works for any size image
     # Private variables for Hog
     __bin_n = 16  # Number of bins
 
@@ -17,13 +17,11 @@ class Hog:
     __cell_size_h = 0
 
     def hog_show(self):
-        # only works for 96x160
+        # only works for all image sizes
         cols, rows, bins = self.__ahist.shape
         cell_rows = self.__cell_size_v
         cell_cols = self.__cell_size_h
-        print rows, cols
         img = np.zeros((rows*cell_rows, cols*cell_cols))
-        print img.shape
         for i in range(0, cols-1):
             for j in range(0, rows-1):
                 # get the angles
