@@ -52,7 +52,7 @@ class Hog:
                     angle += 180/self.__bin_n
         return img
 
-    def descript(self, img):
+    def compute(self, img):
         # Resize the image
         rows, cols = img.shape
         numcells_h = 12
