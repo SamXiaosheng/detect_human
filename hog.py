@@ -54,6 +54,7 @@ class Hog:
 
     def compute(self, img):
         # Resize the image
+        img = np.float32(img)
         rows, cols = img.shape
         numcells_h = 20
         numcells_v = 20

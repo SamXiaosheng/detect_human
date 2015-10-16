@@ -19,8 +19,8 @@ class HumanDetector:
     clf = svm.SVC()
 
     # Descriptor
-    #hog = hog.Hog()
-    hog = cv2.HOGDescriptor()
+    hog = hog.Hog()
+    #hog = cv2.HOGDescriptor()
 
     # Feature list
     feature_vec = []
@@ -36,9 +36,6 @@ class HumanDetector:
             # Detect features with HoG
             # print 'pos', pos
             img = cv2.imread(pos, cv2.IMREAD_GRAYSCALE)
-            #img = np.uint8(img)
-            #img = np.float32(img)
-            #features = self.hog.descript(img)
             features = self.hog.compute(img)
             if(show):
                 cv2.imshow('Image', np.uint8(img))
@@ -52,9 +49,6 @@ class HumanDetector:
             # Detect features with HoG
             # print 'neg', neg
             img = cv2.imread(neg, cv2.IMREAD_GRAYSCALE)
-            #img = np.uint8(img)
-            #img = np.float32(img)
-            #features = self.hog.descript(img)
             features = self.hog.compute(img)
             if(show):
                 cv2.imshow('Image', np.uint8(img))
@@ -67,21 +61,19 @@ class HumanDetector:
     def train(self, X=feature_vec, y=target_vec):
         # convert the lists to array for training
         arr = np.empty((len(X), X[0].shape[0]))
-        for x in range(len(X)):
-            arr[x] = X[1].ravel()
+        for x in range(len(X)-1):
+            print X[x].shape
+            arr[x] = X[x].ravel()
 
         y = np.asarray(y)
-        print arr
-        print y
+        print arr.shape
+        print y.shape
 
         self.clf.fit(arr, y)
 
     def test(self, img):
-        #img = np.float32(img)
-        #img = np.uint8(img)
-        features = self.hog.compute(img)
-        #features = self.hog.descript(img)
-        prediction = self.clf.predict(features)
+        features = np.asarray(self.hog.compute(img))
+        prediction = self.clf.predict(features.ravel())
         return prediction
 
 
@@ -128,11 +120,7 @@ else:
     # test one image for now
     print 'pos list length', len(pos_list)
     print 'neg list length', len(neg_list)
-<<<<<<< HEAD
-    human_detector.build_features(pos_list[:100], neg_list[:100], False)
-=======
     human_detector.build_features(pos_list[:10], neg_list[:10], False)
->>>>>>> origin/master
     human_detector.train()
     with open('human_detector.pkl', 'wb') as output:
         pickle.dump(human_detector.clf, output, pickle.HIGHEST_PROTOCOL)
