@@ -55,7 +55,7 @@ class Hog:
     def descript(self, img):
         # Resize the image
         rows, cols = img.shape
-        numcells_h = 12
+        numcells_h = 20
         numcells_v = 20
         cell_size_v = np.int8(rows/numcells_v)
         cell_size_h = np.int8(cols/numcells_h)

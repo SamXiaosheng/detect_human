@@ -118,7 +118,7 @@ else:
     # test one image for now
     print 'pos list length', len(pos_list)
     print 'neg list length', len(neg_list)
-    human_detector.build_features(pos_list[:10], neg_list[:10], True)
+    human_detector.build_features(pos_list[:100], neg_list[:100], False)
     human_detector.train()
     with open('human_detector.pkl', 'wb') as output:
         pickle.dump(human_detector.clf, output, pickle.HIGHEST_PROTOCOL)
@@ -153,7 +153,7 @@ TP = 0.0
 FN = 0.0
 FP = 0.0
 TN = 0.0
-for pos in pos_test_list[:1]:
+for pos in pos_test_list[:10]:
     img = cv2.imread(pos, cv2.IMREAD_GRAYSCALE)
     # print human_detector.test(img)[0]
     # cv2.imshow('Image', np.uint8(img))
@@ -163,7 +163,7 @@ for pos in pos_test_list[:1]:
     else:
         FN = FN + 1.
 
-for neg in neg_test_list[:1]:
+for neg in neg_test_list[:10]:
     img = cv2.imread(neg, cv2.IMREAD_GRAYSCALE)
     if (human_detector.test(img)[0] == 1):
         FP = FP + 1.
