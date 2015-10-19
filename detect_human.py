@@ -1,9 +1,7 @@
-import cv2
-import numpy as np
-from sklearn import svm
-import hog
 import pickle
 import sys
+import human_detector
+import cv2
 
 TRAIN_LIST_PATH = '../datasets/INRIAPerson/train_64x128_H96/'
 TEST_LIST_PATH = '../datasets/INRIAPerson/test_64x128_H96/'
@@ -11,63 +9,6 @@ IMAGE_PATH = '../datasets/INRIAPerson/96X160H96/Train/'
 TEST_IMAGE_PATH = '../datasets/INRIAPerson/70X134H96/Test/'
 POS_FILENAME = 'pos.lst'
 NEG_FILENAME = 'neg.lst'
-
-
-class HumanDetector:
-
-    # Classifier
-    clf = svm.LinearSVC()  # one versus rest train only one class
-    #clf = svm.SVC(kernel='linear')
-    # Descriptor
-    hog = hog.Hog()
-    # hog = cv2.HOGDescriptor()
-
-    # Feature list
-    feature_vec = []
-
-    # Classification list
-    target_vec = []
-
-    def __init__(self):
-        pass
-
-    def build_features(self, pos_list, neg_list, show=False):
-        for pos in pos_list:
-            # Detect features with HoG
-            # print 'pos', pos
-            img = cv2.imread(pos, cv2.IMREAD_GRAYSCALE)
-            features = self.hog.compute(img)
-            if(show):
-                cv2.imshow('Image', np.uint8(img))
-                cv2.imshow('Hog Visual', np.uint8(self.hog.hog_show()))
-                cv2.waitKey(0)
-            # print features
-            self.feature_vec.append(features)
-            self.target_vec.append(1)
-
-        for neg in neg_list:
-            # Detect features with HoG
-            # print 'neg', neg
-            img = cv2.imread(neg, cv2.IMREAD_GRAYSCALE)
-            features = self.hog.compute(img)
-            if(show):
-                cv2.imshow('Image', np.uint8(img))
-                cv2.imshow('Hog Visual', np.uint8(self.hog.hog_show()))
-                cv2.waitKey(0)
-            self.feature_vec.append(features)
-            self.target_vec.append(0)
-
-    # Use the feature vectors to train the SVM
-    def train(self, X=feature_vec, y=target_vec):
-        # convert the lists to array for training
-        X = np.asarray(X)
-        y = np.asarray(y)
-        self.clf.fit(X, y)
-
-    def test(self, img):
-        features = np.asarray(self.hog.compute(img))
-        prediction = self.clf.predict(features.ravel())
-        return prediction
 
 
 # MAIN
@@ -78,9 +19,10 @@ if(str(sys.argv[1]) == '-l'):
 
 # TRAINING
 print 'Training...'
-human_detector = HumanDetector()
+human_detector = human_detector.HumanDetector()
 
 if loading:
+    print 'loaded pre-trained human detector'
     with open('human_detector.pkl', 'rb') as input:
         human_detector.clf = pickle.load(input)
 else:
@@ -114,7 +56,7 @@ else:
     # test one image for now
     print 'pos list length', len(pos_list)
     print 'neg list length', len(neg_list)
-    human_detector.build_features(pos_list[:10], neg_list[:10], False)
+    human_detector.build_features(pos_list, neg_list, False)
     human_detector.train()
     with open('human_detector.pkl', 'wb') as output:
         pickle.dump(human_detector.clf, output, pickle.HIGHEST_PROTOCOL)
@@ -146,14 +88,14 @@ with open(TEST_LIST_PATH + NEG_FILENAME, 'r') as f:
             filename = line.rpartition('/')[2].rstrip()
             neg_test_list.append(TEST_IMAGE_PATH + '/neg/' + filename)
 
-print 'neg', len(neg_test_list)
 print 'pos', len(pos_test_list)
+print 'neg', len(neg_test_list)
 
 TP = 0.0
 FN = 0.0
 FP = 0.0
 TN = 0.0
-for pos in pos_test_list[:10]:
+for pos in pos_test_list:
     img = cv2.imread(pos, cv2.IMREAD_GRAYSCALE)
     # print human_detector.test(img)[0]
     # cv2.imshow('Image', np.uint8(img))
@@ -163,7 +105,7 @@ for pos in pos_test_list[:10]:
     else:
         FN = FN + 1.
 
-for neg in neg_test_list[:10]:
+for neg in neg_test_list:
     img = cv2.imread(neg, cv2.IMREAD_GRAYSCALE)
     if (human_detector.test(img)[0] == 1):
         FP = FP + 1.
@@ -182,7 +124,3 @@ precision = TP/(TP + FP)
 accuracy = (TP + TN) / (TP + TN + FP + FN)
 print 'Precision:', precision
 print 'Accuracy:', accuracy
-
-
-# search image for human using sliding window approach
-# Then use non-maximal suppression to get one highest scoring detection
