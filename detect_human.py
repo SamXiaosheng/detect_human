@@ -1,3 +1,10 @@
+# ======================================================
+# This script will load or train a human detector and
+# evaluate the classifer.
+#
+# Author: Robert Pham
+#
+# ======================================================
 import pickle
 import sys
 import human_detector

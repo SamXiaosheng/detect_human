@@ -1,3 +1,9 @@
+# ======================================================
+# This script tests the non_max_suppression function
+#
+# Author: Robert Pham
+#
+# ======================================================
 from non_max_suppression import non_max_suppression
 
 # testing box in box

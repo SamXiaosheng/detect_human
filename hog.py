@@ -3,6 +3,10 @@ import cv2
 
 
 class Hog:
+    """Histogram of oriented gradients (HOG) object
+
+    Feature descriptor implemented similar to N. Dalal and B. Triggs CVPR 2005.
+    """
     # Works for any size image
     # Private variables for Hog
     __bin_n = 16  # Number of bins
@@ -17,6 +21,7 @@ class Hog:
     __cell_size_h = 0
 
     def hog_show(self):
+        """Visualize the latest processed image."""
         # only works for all image sizes
         cols, rows, bins = self.__ahist.shape
         cell_rows = self.__cell_size_v
@@ -51,6 +56,11 @@ class Hog:
         return img
 
     def compute(self, img):
+        """Computes the Orientations
+
+        Uses 20x20 blocks with overlap. Each bloack consists of 
+        2x2 cells each of varying size depending on the input image.
+        """
         # Resize the image
         img = np.float32(img)
         rows, cols = img.shape

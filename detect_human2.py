@@ -1,3 +1,10 @@
+# ======================================================
+# This script will load a trained human detector and
+# search for pedestrians using a sliding window approach
+#
+# Author: Robert Pham
+#
+# ======================================================
 import pickle
 import human_detector
 import cv2
@@ -6,6 +13,7 @@ from non_max_suppression import non_max_suppression
 
 
 def process_img(img, detector):
+    """Search for pedestrians using a sliding window approach."""
     # will need to process with different window sizes
     boxes = []  # top-left and bottom right coords
     print 'processing...'
@@ -24,7 +32,7 @@ def process_img(img, detector):
     win_size = np.array([160, 90])
     windows = [win_size*2, win_size*3, win_size*4]
     for window in windows:
-        cv2.imshow("window", np.zeros(window))
+        # cv2.imshow("window", np.zeros(window))
         for i in range(0, rows - window[0], window[0]/4):
             for j in range(0, cols - window[1], window[1]/4):
                 roi = img[i:window[0]+i, j:window[1]+j]
@@ -90,6 +98,4 @@ for pos in pos_test_list:
     # process
     out = process_img(img, human_detector)
     cv2.imshow('detection', out)
-    cv2.waitKey(0)
-
 # Then use non-maximal suppression to get one highest scoring detection

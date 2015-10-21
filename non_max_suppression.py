@@ -2,6 +2,10 @@ import numpy as np
 
 
 def non_max_suppression(boxes, overlapThresh=0.3):
+    """Performs non maximum supression
+
+    Implemented the the Malisiewicz et al. method for non-maximum suppression.
+    """
     boxes = np.array(boxes)
     if len(boxes) == 0:
         return []
